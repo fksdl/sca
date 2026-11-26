@@ -493,7 +493,6 @@
   }
   .more-btn:hover{ text-decoration: underline; }
   .side-pane .more-btn{ font-size: 10.5px; }
-  .block.editing .more-btn{ display: none; }
 
   /* ---------- 서식 기호 ---------- */
 
@@ -1890,6 +1889,12 @@
       btn.addEventListener('mousedown', (e) => { e.stopPropagation(); e.preventDefault(); });
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
+        // 편집 중에 '접기'를 누르면 편집을 마치고 접음
+        if (row.classList.contains('editing')) {
+          b._open = false;
+          const ta = row.querySelector('textarea');
+          if (ta) { ta.blur(); return; }   // 편집이 끝나면서 다시 재고 접힘
+        }
         b._open = !b._open;
         setClamp(row, true);
       });
@@ -2755,7 +2760,7 @@
     const apply = (name) => {
       characterColor(name);
       pushUndoAll();
-      targets.forEach(b => { b.character = name; });
+      targets.forEach(b => setCharacter(b, name));
       selectedBlockIds.clear();
       renderAll();
     };
@@ -3130,6 +3135,9 @@
 
         body.replaceChild(ta, view);
         row.classList.add('editing');
+        // 편집 중에는 글 전체가 보이므로 버튼은 '접기'로 남겨 둠
+        const moreBtn = row.querySelector('.more-btn');
+        if (moreBtn) moreBtn.textContent = '접기 ▴';
         activeEditId = blockObj.id;
         autoResize(ta);
         rememberHeight(ta);
@@ -3778,7 +3786,7 @@
     if (!name) { $('characterError').textContent = '이름을 적어 주세요.'; return; }
     characterColor(name);
     pushUndoAll();
-    characterTargets.forEach(b => { b.character = name; });
+    characterTargets.forEach(b => setCharacter(b, name));
     selectedBlockIds.clear();
     closeCharacterModal();
     renderAll();
@@ -3904,6 +3912,36 @@
 
   function prefixRe(name) {
     return new RegExp('^' + name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*:\\s*');
+  }
+
+  // ---------- 캐릭터로 정할 때 대사 다듬기 ----------
+  // "…" / “…” / 「…」 / 『…』 로 통째로 감싼 대사는 따옴표를 떼고,
+  // 앞에 붙은 '이름:' 도 뗌. (작은따옴표 '…' 는 속마음 표시일 수 있어 그대로 둠)
+  const SPEECH_QUOTES = [['"', '"'], ['“', '”'], ['「', '」'], ['『', '』']];
+
+  function stripQuotes(text) {
+    const t = (text || '').trim();
+    for (const [o, c] of SPEECH_QUOTES) {
+      if (t.length < 2 || !t.startsWith(o) || !t.endsWith(c)) continue;
+      const inner = t.slice(o.length, t.length - c.length);
+      // "가" 하고 "나" 처럼 따옴표가 여러 쌍이면 통째로 감싼 게 아니므로 그대로
+      if (inner.includes(o) || inner.includes(c)) return text;
+      return inner.trim();
+    }
+    return text;
+  }
+
+  function stripSpeaker(text, name) {
+    const same = prefixRe(name);
+    if (same.test(text)) return text.replace(same, '').trim();   // 정한 이름과 같으면 띄어쓰기가 없어도 뗌
+    const m = /^([^:\n"“「『]{1,20}):\s+/.exec(text);
+    if (m && !/https?|www\./i.test(m[1])) return text.slice(m[0].length).trim();
+    return text;
+  }
+
+  function setCharacter(b, name) {
+    b.character = name;
+    b.text = stripQuotes(stripSpeaker(b.text, name));
   }
 
   // 문장 앞의 '이름:' 을 찾아냄 (이미 아는 이름 먼저, 없으면 처음 보는 이름도)
@@ -4288,7 +4326,7 @@
     let name = null, body = text;
     for (const nm of names || []) {
       const re = prefixRe(nm);
-      if (re.test(body)) { body = body.replace(re, '').trim(); name = nm; break; }
+      if (re.test(body)) { body = stripQuotes(body.replace(re, '').trim()); name = nm; break; }
     }
     if (opts.bgm && YOUTUBE_RE.test(body)) {
       return { kind: 'bgm', name: null, text: body.replace(/^\s*BGM\s*[:\-]?\s*/i, '').trim() };
@@ -4335,7 +4373,7 @@
     for (const name of names) {
       const re = new RegExp('^' + name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*:\\s*');
       if (re.test(block.text)) {
-        block.text = block.text.replace(re, '').trim();
+        block.text = stripQuotes(block.text.replace(re, '').trim());
         block.character = name;
         characterColor(name);
         return true;
