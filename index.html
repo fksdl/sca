@@ -786,6 +786,57 @@
   }
   .name-chip:hover{ border-color: var(--accent); }
 
+  .btn.half{ flex: 1; padding-left: 4px; padding-right: 4px; }
+  select.field{ cursor: pointer; }
+
+  /* ---------- 문장 나누기 창 ---------- */
+
+  .modal.split{
+    width: min(620px, 100%);
+    max-height: calc(100vh - 32px);
+    display: flex; flex-direction: column;
+    padding: 18px 20px 14px;
+  }
+  .split-head{ display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; }
+  .split-head h3{ margin: 0; flex: 1; }
+  .split-count{ font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .split-dest{ display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 12.5px; font-weight: 600; color: var(--ink-soft); }
+  .split-dest select{ flex: 1; }
+  .opt-list{ display: flex; flex-direction: column; gap: 1px; padding: 4px; margin-bottom: 12px; border: 1px solid var(--line); border-radius: 10px; }
+  .opt-row{ display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: 7px; font-size: 13px; cursor: pointer; user-select: none; }
+  .opt-row:hover{ background: var(--accent-soft); }
+  .opt-row input{ width: 16px; height: 16px; margin: 0; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+  .opt-label{ flex: 1; }
+  .opt-count{ font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .opt-row.off{ opacity: 0.45; cursor: default; }
+  .opt-row.off:hover{ background: none; }
+  .opt-row.off input{ cursor: default; }
+  .opt-names{ display: flex; flex-wrap: wrap; gap: 5px; padding: 0 8px 8px 34px; }
+  .opt-name{
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 9px; border-radius: 999px;
+    border: 1px solid rgba(16,24,43,0.14);
+    font-size: 12px; font-weight: 600;
+  }
+  .opt-name .c{ font-size: 11px; font-weight: 400; opacity: 0.7; }
+  .opt-name.skip{ background: #fff !important; color: var(--muted) !important; border-style: dashed; text-decoration: line-through; }
+  .pv-title{ font-size: 12px; font-weight: 700; color: var(--ink-soft); margin: 0 0 6px; }
+  .pv-list{ flex: 1 1 auto; min-height: 110px; max-height: 320px; overflow-y: auto; border: 1px solid var(--line); border-radius: 10px; }
+  .pv-row{
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 6px 10px;
+    font-size: 12.5px; line-height: 1.5;
+    border-bottom: 1px solid var(--row-line);
+    border-left: 3px solid var(--row-bar);
+  }
+  .pv-row:last-child{ border-bottom: none; }
+  .pv-num{ min-width: 18px; padding-top: 2px; font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .pv-name{ padding-top: 1px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+  .pv-text{ flex: 1; min-width: 0; white-space: pre-wrap; word-break: keep-all; overflow-wrap: anywhere; }
+  .pv-row.judge{ background: #EAE7F3 !important; border-left-color: #5B4E86 !important; }
+  .pv-tag{ margin-top: 1px; padding: 1px 6px; border-radius: 4px; background: #5B4E86; color: #fff; font-size: 10px; font-weight: 700; white-space: nowrap; }
+  .pv-more{ padding: 8px; text-align: center; font-size: 11.5px; color: var(--muted); }
+
   .help h4{ margin: 16px 0 7px; font-size: 12.5px; color: var(--ink); }
   .help h4:first-of-type{ margin-top: 2px; }
   .help-grid{ display: grid; grid-template-columns: minmax(0, 200px) 1fr; gap: 6px 14px; font-size: 12.5px; line-height: 1.5; color: var(--ink-soft); }
@@ -812,8 +863,6 @@
         <div class="side-card-body">
           <textarea id="input" class="field" placeholder="여기에 글을 붙여넣으세요"></textarea>
           <button class="btn wide" id="splitBtn">문장 나누기</button>
-          <div class="split-target" id="splitTarget">메인 끝에 추가돼요</div>
-          <label class="switch"><input type="checkbox" id="spacingToggle" checked><span>띄어쓰기 교정</span></label>
         </div>
       </section>
 
@@ -826,7 +875,6 @@
         </div>
         <div class="side-card-body">
           <div class="win-list" id="windowList"></div>
-          <div class="sc-hint" id="winHint">창을 오른쪽 화면으로 끌어다 놓으면 옆에 고정돼요.</div>
         </div>
       </section>
 
@@ -835,8 +883,10 @@
         <div class="side-card-body">
           <input type="text" id="findWord" class="field" placeholder="찾을 말">
           <input type="text" id="replaceWord" class="field" placeholder="바꿀 말">
-          <button class="btn secondary wide" id="replaceBtn">보고 있는 창에서 바꾸기</button>
-          <div class="sc-hint">은/는, 이/가 같은 조사도 알아서 맞춰요.</div>
+          <div class="row">
+            <button class="btn secondary half" id="replaceBtn">이 창만 바꾸기</button>
+            <button class="btn secondary half" id="replaceAllBtn">전체 창 바꾸기</button>
+          </div>
         </div>
       </section>
 
@@ -844,10 +894,9 @@
         <div class="side-card-head"><span class="sc-title">캐릭터</span><svg class="sc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>
         <div class="side-card-body">
           <div class="row">
-            <input type="text" id="charPrefixInput" class="field" placeholder="예: 네즈미야, 하루">
-            <button class="btn secondary sm" id="charPrefixBtn">적용</button>
+            <input type="text" id="charPrefixInput" class="field" placeholder="이름 (예: 하루, 유키)" title="이 창에서 '이름:' 으로 시작하는 문장을 그 캐릭터 대사로 바꿔요. 쉼표로 여러 명.">
+            <button class="btn secondary sm" id="charPrefixBtn" title="이 창에서 '이름:' 으로 시작하는 문장을 그 캐릭터 대사로 바꿔요">적용</button>
           </div>
-          <div class="sc-hint">"이름: " 으로 시작하는 문장을 그 캐릭터 대사로 바꿔요. 쉼표로 여러 명.</div>
           <div class="char-list" id="charList"></div>
           <div id="charExtra"></div>
         </div>
@@ -910,6 +959,29 @@
       <div class="modal-actions">
         <button class="btn secondary" id="dlgCancel">취소</button>
         <button class="btn" id="dlgOk">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="splitModal">
+    <div class="modal split" role="dialog" aria-modal="true">
+      <div class="split-head">
+        <h3>문장 나누기</h3>
+        <span class="split-count" id="splitCount"></span>
+      </div>
+      <label class="split-dest">넣을 곳 <select class="field" id="splitDest"></select></label>
+      <div class="opt-list">
+        <label class="opt-row" id="optBgmRow"><input type="checkbox" id="optBgm"><span class="opt-label">유튜브 링크 → 브금(bgm) 줄로</span><span class="opt-count" id="optBgmCount"></span></label>
+        <label class="opt-row" id="optNamesRow"><input type="checkbox" id="optNames"><span class="opt-label">"이름:" → 이름 색 글자로</span><span class="opt-count" id="optNamesCount"></span></label>
+        <div class="opt-names" id="optNameChips"></div>
+        <label class="opt-row" id="optJudgeRow"><input type="checkbox" id="optJudge"><span class="opt-label">'판정'으로 끝나는 문장 → 판정 블록으로</span><span class="opt-count" id="optJudgeCount"></span></label>
+        <label class="opt-row"><input type="checkbox" id="spacingToggle" checked><span class="opt-label">띄어쓰기 교정</span><span class="opt-count"></span></label>
+      </div>
+      <div class="pv-title">미리보기</div>
+      <div class="pv-list" id="pvList"></div>
+      <div class="modal-actions">
+        <button class="btn secondary" id="splitCancel">취소</button>
+        <button class="btn" id="splitOk">넣기</button>
       </div>
     </div>
   </div>
@@ -991,12 +1063,19 @@
         <span>창 끌기</span><span>왼쪽 창 목록에서 오른쪽 화면으로 끌면 옆에 고정 (최대 4개)</span>
       </div>
 
-      <h4>자동으로 알아보는 것</h4>
+      <h4>문장 나누기 창에서 고르는 것</h4>
       <div class="help-grid">
-        <span><code>이름: </code></span><span>앞에 이름이 붙은 문장은 그 캐릭터 대사로</span>
-        <span>유튜브 링크</span><span>bgm 줄로</span>
-        <span>'판정' 으로 끝나는 문장</span><span>성공 / 실패 칸이 달린 판정 칸으로</span>
+        <span>유튜브 링크</span><span>브금(bgm) 줄로</span>
+        <span><code>이름: </code></span><span>이름 색 글자로 (이름을 눌러 하나씩 뺄 수 있어요)</span>
+        <span>'판정' 으로 끝나는 문장</span><span>성공 / 실패 칸이 달린 판정 블록으로</span>
+        <span>넣을 곳</span><span>메인, 다른 창, 새 창 중에서</span>
+        <span>문장 칸 안에 붙여넣기</span><span>창 없이, 마지막으로 고른 설정대로 나눠요</span>
+      </div>
+
+      <h4>보기</h4>
+      <div class="help-grid">
         <span>긴 문장</span><span>4줄이 넘으면 접어 두고 '더 보기'로 펼쳐요 (⋯ 메뉴에서 끄기)</span>
+        <span>찾아 바꾸기</span><span>은/는, 이/가 같은 조사도 알아서 맞춰요</span>
       </div>
 
       <div class="modal-actions">
@@ -1117,7 +1196,15 @@
   let characterCustom = {};
   let infoCharacters = new Set();
   let hiddenCharacters = new Set();
-  let settings = { collapseLong: true };   // 저장 파일에 함께 들어가는 보기 설정
+  // 저장 파일에 함께 들어가는 설정 (paste: 문장 나누기 창에서 마지막으로 고른 체크)
+  const DEFAULT_PASTE = { bgm: true, names: true, judge: true, skipNames: [] };
+  function normalizeSettings(s) {
+    const out = Object.assign({ collapseLong: true }, s || {});
+    out.paste = Object.assign({}, DEFAULT_PASTE, out.paste || {});
+    if (!Array.isArray(out.paste.skipNames)) out.paste.skipNames = [];
+    return out;
+  }
+  let settings = normalizeSettings();
   let focusedDocId = null;    // 크게 열어 둔 창
   let folderModalDoc = null;
   let folderModalContainer = null;
@@ -1192,10 +1279,6 @@
     listEl.innerHTML = '';
     const all = knownCharacterNames();
     const names = all.filter(nm => !infoCharacters.has(nm) && !hiddenCharacters.has(nm));
-
-    if (names.length === 0) {
-      listEl.appendChild(el('div', 'sc-hint', '아직 캐릭터가 없어요. 문장을 우클릭 → 캐릭터에서 정할 수 있어요.'));
-    }
 
     names.forEach(nm => {
       const c = characterColor(nm);
@@ -1692,15 +1775,28 @@
     return result;
   }
 
+  // 문장과 판정 블록의 제목(원래 문장이었던 것)까지 바꿈
   function walkAndReplace(items, find, replace) {
     let n = 0;
     items.forEach(it => {
       if (it.type === 'block') {
         const t = smartReplace(it.text, find, replace);
         if (t !== it.text) { it.text = t; n++; }
-      } else n += walkAndReplace(it.children, find, replace);
+        return;
+      }
+      if (it.kind === 'judge' && it.title) {
+        const t = smartReplace(it.title, find, replace);
+        if (t !== it.title) { it.title = t; n++; }
+      }
+      n += walkAndReplace(it.children, find, replace);
     });
     return n;
+  }
+
+  function containsText(items, find) {
+    return items.some(it => it.type === 'block'
+      ? it.text.includes(find)
+      : ((it.kind === 'judge' && (it.title || '').includes(find)) || containsText(it.children, find)));
   }
 
   // ---------- 입력칸 높이 ----------
@@ -1987,13 +2083,7 @@
     container.innerHTML = '';
     if (doc.items.length === 0) {
       const empty = el('div', 'empty');
-      if (doc === mainDoc) {
-        empty.innerHTML = '왼쪽 <b>글 넣기</b>에 글을 붙여넣고<br><b>문장 나누기</b>를 누르세요.<br><span class="sub">Ctrl + Enter 로도 나눌 수 있어요</span>';
-      } else if (compact) {
-        empty.textContent = '비어 있는 창이에요';
-      } else {
-        empty.innerHTML = '비어 있는 창이에요.<br><span class="sub">왼쪽 글 넣기에서 나누면 이 창에 들어와요</span>';
-      }
+      empty.innerHTML = doc === mainDoc ? '왼쪽 <b>글 넣기</b>에 글을 붙여넣으세요' : '비어 있는 창이에요';
       if (!compact) {
         const add = el('button', 'btn secondary sm', '+ 빈 줄 만들기');
         add.addEventListener('click', () => {
@@ -2064,10 +2154,6 @@
     const hasSide = panes.some(p => p.docId !== focusedDocId);
     mainToggleBtn.style.display = (!focusedDocId && (hasSide || mainClosed)) ? '' : 'none';
     mainToggleBtn.textContent = mainClosed ? '메인 다시 보기' : '옆 창만 크게';
-
-    $('splitTarget').textContent = focusedDocId
-      ? `“${d.title}” 끝에 추가돼요`
-      : '메인 끝에 추가돼요';
   }
 
   // ---------- 창 목록 (사이드바) ----------
@@ -2112,8 +2198,6 @@
       renderAll();
     });
     windowListEl.appendChild(tail);
-
-    $('winHint').style.display = docs.length ? '' : 'none';
   }
 
   function buildMainChip() {
@@ -2947,8 +3031,10 @@
 
           e.preventDefault();
           pushUndo(doc);
-          const names2 = registeredPrefixNames();
-          const items = sentences.map(sen => buildItemFromSentence(sen, names2));
+          // 문장 칸 안에 붙여넣을 때는 창 없이, 나누기 창에서 마지막으로 고른 설정대로
+          const p = settings.paste;
+          const names2 = p.names ? registeredPrefixNames().filter(n => !p.skipNames.includes(n)) : [];
+          const items = sentences.map(sen => buildItemFromSentence(sen, names2, p));
           containerRef.splice(index, 1, ...items);
           const lastBlocks = allBlocks(items);
           const last = lastBlocks[lastBlocks.length - 1];
@@ -3761,6 +3847,7 @@
     if (e.key !== 'Escape') return;
     if (isMenuOpen()) { hideContextMenu(); return; }
     if (dialogModal.classList.contains('visible')) { closeDialog(false); return; }
+    if (splitModal.classList.contains('visible')) { closeSplitDialog(); return; }
     if (helpModal.classList.contains('visible')) { closeHelp(); return; }
     if (folderModal.classList.contains('visible')) { closeFolderModal(); return; }
     if (moveModal.classList.contains('visible')) { closeMoveModal(); return; }
@@ -3809,41 +3896,271 @@
     ], { alignRight: true });
   });
 
-  // ---------- 글 넣기 ----------
+  // ---------- 글 넣기 → 문장 나누기 창 ----------
+  // 바로 넣지 않고, 무엇을 바꿀지 체크하고 미리 본 뒤에 넣음
 
-  splitBtn.addEventListener('click', () => {
-    const sentences = splitSentences(input.value);
-    if (sentences.length === 0) {
+  const splitModal = $('splitModal');
+  let splitSession = null;   // { raw, sentences, detected:[{name,count}], skip:Set, bgm, judge }
+
+  function prefixRe(name) {
+    return new RegExp('^' + name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*:\\s*');
+  }
+
+  // 문장 앞의 '이름:' 을 찾아냄 (이미 아는 이름 먼저, 없으면 처음 보는 이름도)
+  function detectName(s, registered) {
+    for (const nm of registered) {
+      if (/^bgm$/i.test(nm)) continue;
+      if (prefixRe(nm).test(s)) return nm;
+    }
+    const m = /^([^:\n]{1,20}):\s/.exec(s);
+    if (!m) return null;
+    const nm = m[1].trim();
+    if (!nm || /^bgm$/i.test(nm) || /https?|www\./i.test(nm)) return null;
+    return nm;
+  }
+
+  function analyzeForSplit() {
+    const sess = splitSession;
+    sess.sentences = splitSentences(sess.raw);
+    const registered = registeredPrefixNames();
+    const counts = new Map();
+    let bgm = 0, judge = 0;
+    sess.sentences.forEach(s => {
+      if (WHOLE_LINE_RE.test(s)) return;
+      const nm = detectName(s, registered);
+      if (nm) counts.set(nm, (counts.get(nm) || 0) + 1);
+      const body = nm ? s.replace(prefixRe(nm), '').trim() : s;
+      if (YOUTUBE_RE.test(body)) { bgm++; return; }
+      if (JUDGE_RE.test(body)) judge++;
+    });
+    sess.detected = [...counts.entries()].map(([name, count]) => ({ name, count }));
+    sess.bgm = bgm;
+    sess.judge = judge;
+  }
+
+  function splitNames() {
+    if (!$('optNames').checked) return [];
+    return splitSession.detected.map(d => d.name)
+      .filter(n => !splitSession.skip.has(n))
+      .sort((a, b) => b.length - a.length);
+  }
+
+  function splitOpts() {
+    return { bgm: $('optBgm').checked, judge: $('optJudge').checked };
+  }
+
+  function renderSplitDialog() {
+    const sess = splitSession;
+    if (!sess) return;
+    $('splitCount').textContent = `문장 ${sess.sentences.length}개`;
+
+    const setRow = (rowId, inputId, countId, n, unit) => {
+      const off = n === 0;
+      $(rowId).classList.toggle('off', off);
+      $(inputId).disabled = off;
+      $(countId).textContent = off ? '없음' : `${n}${unit}`;
+    };
+    setRow('optBgmRow', 'optBgm', 'optBgmCount', sess.bgm, '개');
+    setRow('optNamesRow', 'optNames', 'optNamesCount', sess.detected.reduce((a, d) => a + d.count, 0), '줄');
+    setRow('optJudgeRow', 'optJudge', 'optJudgeCount', sess.judge, '개');
+
+    const names = splitNames();
+    const opts = splitOpts();
+    const classes = sess.sentences.map(s => classifySentence(s, names, opts));
+
+    // 넣었을 때 받게 될 색을 나오는 순서대로 미리 계산
+    const colors = new Map();
+    let fresh = 0;
+    const colorOf = (nm) => {
+      if (!colors.has(nm)) {
+        let c;
+        if (infoCharacters.has(nm)) c = INFO_COLOR;
+        else if (characterCustom[nm]) c = { bg: characterCustom[nm], name: darken(characterCustom[nm], 0.62) };
+        else {
+          let idx = characterOrder.indexOf(nm);
+          if (idx === -1) idx = characterOrder.length + (fresh++);
+          c = CHARACTER_COLORS[idx % CHARACTER_COLORS.length];
+        }
+        colors.set(nm, c);
+      }
+      return colors.get(nm);
+    };
+    classes.forEach(c => { const who = c.kind === 'bgm' ? 'bgm' : c.name; if (who) colorOf(who); });
+
+    // 찾은 이름들 — 누르면 그 이름만 빼거나 다시 넣음
+    const chips = $('optNameChips');
+    chips.innerHTML = '';
+    chips.style.display = (sess.detected.length && $('optNames').checked) ? '' : 'none';
+    sess.detected.forEach(d => {
+      const skipped = sess.skip.has(d.name);
+      const chip = el('button', 'opt-name' + (skipped ? ' skip' : ''));
+      chip.type = 'button';
+      if (!skipped) {
+        const c = colorOf(d.name);
+        chip.style.background = c.bg;
+        chip.style.color = c.name;
+      }
+      chip.title = skipped ? '눌러서 다시 이름으로 바꾸기' : '눌러서 이 이름은 그대로 두기';
+      chip.appendChild(document.createTextNode(d.name));
+      chip.appendChild(el('span', 'c', String(d.count)));
+      chip.addEventListener('click', () => {
+        if (skipped) sess.skip.delete(d.name); else sess.skip.add(d.name);
+        renderSplitDialog();
+      });
+      chips.appendChild(chip);
+    });
+
+    // 미리보기
+    const list = $('pvList');
+    list.innerHTML = '';
+    const LIMIT = 300;
+    const frag = document.createDocumentFragment();
+    classes.slice(0, LIMIT).forEach((c, i) => {
+      const row = el('div', 'pv-row' + (c.kind === 'judge' ? ' judge' : ''));
+      row.appendChild(el('span', 'pv-num', String(i + 1).padStart(2, '0')));
+      const who = c.kind === 'bgm' ? 'bgm' : c.name;
+      if (who) {
+        const col = colorOf(who);
+        row.style.background = col.bg;
+        row.style.borderLeftColor = col.name;
+        const nm = el('span', 'pv-name', who);
+        nm.style.color = col.name;
+        row.appendChild(nm);
+      }
+      if (c.kind === 'judge') row.appendChild(el('span', 'pv-tag', '판정'));
+      const t = el('div', 'pv-text');
+      renderRich(t, c.text, false);
+      row.appendChild(t);
+      frag.appendChild(row);
+    });
+    list.appendChild(frag);
+    if (classes.length > LIMIT) list.appendChild(el('div', 'pv-more', `… 그리고 ${classes.length - LIMIT}개 더`));
+  }
+
+  function openSplitDialog() {
+    const raw = input.value;
+    if (!splitSentences(raw).length) {
       toast('나눌 글이 없어요. 위 칸에 글을 붙여넣어 주세요');
       input.focus();
       return;
     }
-    const d = focusedDocId ? currentDoc() : mainDoc;
-    pushUndo(d);
-    const names = registeredPrefixNames();
-    const items = sentences.map(s => buildItemFromSentence(s, names));
-    d.items.push(...items);
+    splitSession = { raw, skip: new Set(settings.paste.skipNames) };
+    $('optBgm').checked = settings.paste.bgm;
+    $('optNames').checked = settings.paste.names;
+    $('optJudge').checked = settings.paste.judge;
+    $('spacingToggle').checked = spacingFixEnabled;
+
+    const sel = $('splitDest');
+    sel.innerHTML = '';
+    const addOpt = (value, label) => {
+      const o = document.createElement('option');
+      o.value = value;
+      o.textContent = label;
+      sel.appendChild(o);
+    };
+    addOpt('main', '메인');
+    normalizeWinOrder();
+    const ordered = [];
+    winOrder.forEach(e => {
+      if (e.t === 'd') { const d = docs.find(x => x.id === e.id); if (d) ordered.push(d); }
+      else docs.filter(d => d.winFolder === e.id).forEach(d => ordered.push(d));
+    });
+    docs.forEach(d => { if (!ordered.includes(d)) ordered.push(d); });
+    ordered.forEach(d => addOpt(String(d.id), d.title));
+    addOpt('new', '＋ 새 창 만들어서 넣기');
+    sel.value = focusedDocId ? String(focusedDocId) : 'main';
+
+    analyzeForSplit();
+    renderSplitDialog();
+    splitModal.classList.add('visible');
+    $('pvList').scrollTop = 0;
+    requestAnimationFrame(() => $('splitOk').focus());
+  }
+
+  function closeSplitDialog() {
+    splitModal.classList.remove('visible');
+    splitSession = null;
+  }
+
+  function confirmSplit() {
+    const sess = splitSession;
+    if (!sess) return;
+    const names = splitNames();
+    const opts = splitOpts();
+
+    // 고른 체크는 다음번에도 그대로 (문장 칸 안에 붙여넣을 때도 이 설정을 씀)
+    settings.paste.bgm = $('optBgm').checked;
+    settings.paste.names = $('optNames').checked;
+    settings.paste.judge = $('optJudge').checked;
+    const skip = new Set(settings.paste.skipNames);
+    sess.detected.forEach(d => { if (sess.skip.has(d.name)) skip.add(d.name); else skip.delete(d.name); });
+    settings.paste.skipNames = [...skip].slice(-50);
+
+    const v = $('splitDest').value;
+    let dest;
+    if (v === 'new') {
+      dest = makeDoc(`새 창 ${docs.length + 1}`);
+      dest._editingTitle = true;
+      docs.push(dest);
+    } else {
+      dest = v === 'main' ? mainDoc : (docs.find(d => String(d.id) === v) || mainDoc);
+    }
+
+    pushUndo(dest);
+    const items = sess.sentences.map(s => itemFromClass(classifySentence(s, names, opts)));
+    dest.items.push(...items);
+    dest.mode = 'edit';
     input.value = '';
-    d.mode = 'edit';
-    if (mainClosed && !focusedDocId) mainClosed = false;
+    closeSplitDialog();
+
+    const count = countItems(items);
+    if (v === 'new') {
+      openDoc(dest.id);
+      toast(`문장 ${count}개로 새 창을 만들었어요`);
+      return;
+    }
+    if (dest === mainDoc && mainClosed && !focusedDocId) mainClosed = false;
     renderAll();
 
-    const first = items[0];
-    const anchorId = (first.type === 'block' ? 'b' : first.type === 'tabgroup' ? 'g' : 'f') + first.id;
-    toast(`문장 ${countItems(items)}개를 ${d === mainDoc ? '메인' : '“' + d.title + '”'} 끝에 넣었어요`, {
-      label: '보기',
-      onClick: () => {
-        const n = mainPane.querySelector(`[data-anchor-id="${anchorId}"]`);
-        if (n) n.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    });
-  });
+    const label = dest === mainDoc ? '메인' : `“${dest.title}”`;
+    if (dest === currentDoc()) {
+      const first = items[0];
+      const anchorId = (first.type === 'block' ? 'b' : first.type === 'tabgroup' ? 'g' : 'f') + first.id;
+      toast(`문장 ${count}개를 ${label} 끝에 넣었어요`, {
+        label: '보기',
+        onClick: () => {
+          const n = mainPane.querySelector(`[data-anchor-id="${anchorId}"]`);
+          if (n) n.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    } else {
+      toast(`문장 ${count}개를 ${label} 끝에 넣었어요`, {
+        label: '열기',
+        onClick: () => { if (dest === mainDoc) goMain(); else openDoc(dest.id); }
+      });
+    }
+  }
 
+  splitBtn.addEventListener('click', openSplitDialog);
   input.addEventListener('keydown', (e) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); splitBtn.click(); }
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); openSplitDialog(); }
+  });
+  // 글 넣기 칸에 붙여넣으면 바로 나누기 창이 뜸
+  input.addEventListener('paste', () => {
+    setTimeout(() => { if (input.value.trim() && !splitSession) openSplitDialog(); }, 0);
   });
 
-  $('spacingToggle').addEventListener('change', (e) => { spacingFixEnabled = e.target.checked; });
+  ['optBgm', 'optNames', 'optJudge'].forEach(id => $(id).addEventListener('change', renderSplitDialog));
+  $('spacingToggle').addEventListener('change', (e) => {
+    spacingFixEnabled = e.target.checked;
+    if (splitSession) { analyzeForSplit(); renderSplitDialog(); }
+  });
+  $('splitOk').addEventListener('click', confirmSplit);
+  $('splitCancel').addEventListener('click', closeSplitDialog);
+  splitModal.addEventListener('mousedown', (e) => { if (e.target === splitModal) closeSplitDialog(); });
+  splitModal.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); confirmSplit(); }
+  });
 
   // ---------- 창 ----------
 
@@ -3921,18 +4238,25 @@
 
   // ---------- 찾아 바꾸기 ----------
 
-  $('replaceBtn').addEventListener('click', () => {
+  function doReplace(all) {
     const find = $('findWord').value;
     const replace = $('replaceWord').value;
     if (!find) { toast('찾을 말을 적어 주세요'); $('findWord').focus(); return; }
-    const d = currentDoc();
-    if (!allBlocks(d.items).some(b => b.text.includes(find))) { toast(`"${find}" 을(를) 이 창에서 찾지 못했어요`); return; }
-    pushUndo(d);
-    const n = walkAndReplace(d.items, find, replace);
+    const targets = all ? [mainDoc, ...docs] : [currentDoc()];
+    let docsHit = 0, n = 0;
+    targets.forEach(d => {
+      if (!containsText(d.items, find)) return;
+      pushUndo(d);
+      const k = walkAndReplace(d.items, find, replace);
+      if (k) { docsHit++; n += k; }
+    });
+    if (!n) { toast(`"${find}" 을(를) ${all ? '어느 창에서도' : '이 창에서'} 찾지 못했어요`); return; }
     renderAll();
-    toast(`문장 ${n}개에서 바꿨어요 · Ctrl+Z 로 되돌릴 수 있어요`);
-  });
-  $('replaceWord').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); $('replaceBtn').click(); } });
+    toast(all && docsHit > 1 ? `창 ${docsHit}개, 문장 ${n}개에서 바꿨어요` : `문장 ${n}개에서 바꿨어요 · Ctrl+Z 로 되돌릴 수 있어요`);
+  }
+  $('replaceBtn').addEventListener('click', () => doReplace(false));
+  $('replaceAllBtn').addEventListener('click', () => doReplace(true));
+  $('replaceWord').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); doReplace(false); } });
   $('findWord').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); $('replaceWord').focus(); } });
 
   // ---------- 새로 만든 문장 자동 처리 (BGM / 판정) ----------
@@ -3958,19 +4282,33 @@
     };
   }
 
-  function buildItemFromSentence(text, names) {
-    const b = { type: 'block', id: newId(), text };
-    if (WHOLE_LINE_RE.test(text)) return b;   // 메모·목록 줄은 그대로
-    applyPrefixToBlock(b, names);
-
-    if (YOUTUBE_RE.test(b.text)) {
-      b.text = b.text.replace(/^\s*BGM\s*[:\-]?\s*/i, '').trim();
-      b.character = 'bgm';
-      characterColor('bgm');
-      return b;
+  // 문장 하나가 어떻게 바뀔지 판단 (미리보기와 실제 넣기가 같은 규칙을 씀)
+  function classifySentence(text, names, opts) {
+    if (WHOLE_LINE_RE.test(text)) return { kind: 'plain', name: null, text };   // 메모·목록 줄은 그대로
+    let name = null, body = text;
+    for (const nm of names || []) {
+      const re = prefixRe(nm);
+      if (re.test(body)) { body = body.replace(re, '').trim(); name = nm; break; }
     }
-    if (JUDGE_RE.test(b.text)) return makeJudgeFrom(b);
-    return b;
+    if (opts.bgm && YOUTUBE_RE.test(body)) {
+      return { kind: 'bgm', name: null, text: body.replace(/^\s*BGM\s*[:\-]?\s*/i, '').trim() };
+    }
+    if (opts.judge && JUDGE_RE.test(body)) return { kind: 'judge', name, text: body };
+    return { kind: 'plain', name, text: body };
+  }
+
+  function itemFromClass(c) {
+    if (c.kind === 'bgm') {
+      characterColor('bgm');
+      return { type: 'block', id: newId(), text: c.text, character: 'bgm' };
+    }
+    const b = { type: 'block', id: newId(), text: c.text };
+    if (c.name) { b.character = c.name; characterColor(c.name); }
+    return c.kind === 'judge' ? makeJudgeFrom(b) : b;
+  }
+
+  function buildItemFromSentence(text, names, opts) {
+    return itemFromClass(classifySentence(text, names, opts || settings.paste));
   }
 
   // ---------- 캐릭터 이름 접두사 자동 인식 ----------
@@ -4096,7 +4434,7 @@
       idx.push({ name, at: Date.now() });
       writeSlotIndex(idx);
       const t = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
-      setSaveStatus(`"${name}" 으로 ${t}에 저장됨 · 창을 닫을 때도 자동으로 저장돼요`);
+      setSaveStatus(`"${name}" 으로 ${t}에 저장됨`);
       renderSlotList();
       return true;
     } catch (err) {
@@ -4321,7 +4659,7 @@
     hiddenCharacters = new Set(s.hiddenCharacters || []);
     winFolders = s.winFolders || [];
     winOrder = s.winOrder || [];
-    settings = Object.assign({ collapseLong: true }, s.settings || {});
+    settings = normalizeSettings(s.settings);
     idSeq = Math.max(s.idSeq || 1, maxIdIn({ mainDoc, docs, panes, winFolders }) + 1);
     focusedDocId = s.focusedDocId || null;
     spacingFixEnabled = s.spacingFixEnabled !== false;
